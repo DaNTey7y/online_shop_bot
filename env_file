@@ -1,0 +1,4 @@
+# Rename this file to .env and paste your data
+# Переименуйте этот файл в .env и вставтье свои данные
+BOT_TOKEN=123456789:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
+DB_URL=postgresql+asyncpg://user:password@host:port/db
