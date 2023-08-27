@@ -1,10 +1,11 @@
-from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram import Router, Bot, F
+from aiogram.types import CallbackQuery, LabeledPrice
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_user_data, get_sections, get_goods_by_section, \
     get_section_data, get_product
 
+from config_reader import config
 from keyboards.shop_keyboards import *
 from content import *
 
@@ -51,13 +52,34 @@ async def section_goods(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data.startswith("product"))
-async def product_page(callback: CallbackQuery, session: AsyncSession):
+async def product_page(callback: CallbackQuery, session: AsyncSession, bot: Bot):
     product_id = int(callback.data.split("#")[1])
     product = await get_product(session, product_id)
-    info = f"Наименование товара: {product.name}\n" \
-           f"Цена: {product.cost}\n\n" \
-           f"Вы не хотите его покупать."
-    await callback.message.edit_caption(
-        caption=info,
-        reply_markup=back_in_menu()
-    )
+
+    if config.payments_token.get_secret_value().split(":")[1] == "TEST":
+        await bot.send_message(callback.message.chat.id, "Тестовый платеж")
+
+        photo_url = "https://sun9-70.userapi.com/impg/ulhYriziLEYzPVpfR0jiMdrfHIOTVlGWQG0QHg/" \
+                    "CE8MjEEZKnw.jpg?size=798x677&quality=96&sign=2873e7b6433866b7ea6236cc15013058&type=album"
+        price = LabeledPrice(label=product.name, amount=product.cost*100)
+
+        await bot.send_invoice(
+            chat_id=callback.message.chat.id,
+            title="Покупка товара",
+            description=f"Вы получите: {product.name}",
+            provider_token=config.payments_token.get_secret_value(),
+            currency="rub",
+            photo_url=photo_url,
+            is_flexible=False,
+            prices=[price],
+            payload=f"buying-product#{product.product_id}"
+        )
+
+    else:
+        info = f"Наименование товара: {product.name}\n" \
+               f"Цена: {product.cost}\n\n" \
+               f"Вы не хотите его покупать."
+        await callback.message.edit_caption(
+            caption=info,
+            reply_markup=back_in_menu()
+        )
