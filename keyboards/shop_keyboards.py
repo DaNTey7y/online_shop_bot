@@ -45,8 +45,6 @@ def back_in_menu():
 
 def get_profile_ikb():
     builder = InlineKeyboardBuilder()
-    builder.button(text="Пополнить баланс", callback_data="add_money")
-    builder.button(text="Использовать промокод", callback_data="use_code")
     builder.button(text="История покупок", callback_data="history")
     builder.add(BACK_IN_MENU_BTN)
     builder.adjust(1)
