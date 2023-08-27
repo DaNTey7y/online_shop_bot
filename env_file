@@ -2,3 +2,4 @@
 # Переименуйте этот файл в .env и вставтье свои данные
 BOT_TOKEN=123456789:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
 DB_URL=postgresql+asyncpg://user:password@host:port/db
+PAYMENTS_TOKEN=YOUR_TOKEN

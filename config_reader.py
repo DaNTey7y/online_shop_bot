@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 class BotSettings(BaseSettings):
     bot_token: SecretStr
     db_url: PostgresDsn
+    payments_token: SecretStr
 
     class Config:
         env_file = ".env"
