@@ -17,6 +17,9 @@ def show_section_info(img_path, img_caption):
     )
 
 
+FOOL_IMAGE = FSInputFile("static/images/fool.png")
+
+
 OBLOJKA_IMAGE = InputMediaPhoto(
     media=FSInputFile("static/images/oblojka.png"),
     caption="Главное меню"
