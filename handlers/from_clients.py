@@ -1,9 +1,10 @@
 from aiogram import Router, Bot, F
 from aiogram.types import Message, PreCheckoutQuery, ContentType
 from aiogram.filters import CommandStart
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import User
+from db import User, get_user_data
 
 from keyboards.shop_keyboards import main_menu_ikb
 from content import *
@@ -19,8 +20,21 @@ async def pre_checkout(pre_checkout_q: PreCheckoutQuery, bot: Bot):
 
 
 @router.message(F.content_type == ContentType.SUCCESSFUL_PAYMENT)
-async def successful_payment(message: Message):
+async def successful_payment(message: Message, session: AsyncSession):
     payment_info = message.successful_payment
+
+    user = await get_user_data(session, message.from_user.id)
+    new_orders_amount = user.orders_amount + 1
+
+    statement = (
+        update(User).
+        where(User.user_id == message.from_user.id).
+        values(orders_amount=new_orders_amount)
+    )
+
+    await session.execute(statement)
+    await session.commit()
+
     await message.answer_photo(
         photo=FOOL_IMAGE,
         caption=f"Платеж на сумму {payment_info.total_amount // 100} "
