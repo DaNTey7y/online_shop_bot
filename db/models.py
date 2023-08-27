@@ -28,6 +28,9 @@ class Section(Base):
 
     image_caption = Column(TEXT)
 
+    def __str__(self):
+        return f"<Section:_id#{self.section_id};_name#{self.name}>"
+
 
 class Product(Base):
     __tablename__ = "goods"
