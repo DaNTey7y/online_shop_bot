@@ -2,8 +2,7 @@ from aiogram import Router, Bot, F
 from aiogram.types import CallbackQuery, LabeledPrice
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import get_user_data, get_sections, get_goods_by_section, \
-    get_section_data, get_product
+from db import *
 
 from config_reader import config
 from keyboards.shop_keyboards import *
@@ -28,9 +27,10 @@ async def menu_transition(callback: CallbackQuery, session: AsyncSession):
     elif callback.data == "guarantees":
         await callback.message.edit_media(media=GUARANTEES_IMAGE, reply_markup=back_in_menu())
     elif callback.data == "profile":
+        orders_amount = await get_user_history(session, callback.from_user.id)
         user = await get_user_data(session, callback.from_user.id)
         await callback.message.edit_media(
-            media=show_user_info(user.user_id, user.orders_amount, user.reg_date),
+            media=show_user_info(user.user_id, len(orders_amount), user.reg_date),
             reply_markup=get_profile_ikb()
         )
     elif callback.data == "faq":
