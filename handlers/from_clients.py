@@ -1,10 +1,9 @@
 from aiogram import Router, Bot, F
 from aiogram.types import Message, PreCheckoutQuery, ContentType
 from aiogram.filters import CommandStart
-from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import User, get_user_data
+from db import User, Operation
 
 from keyboards.shop_keyboards import main_menu_ikb
 from content import *
@@ -23,16 +22,9 @@ async def pre_checkout(pre_checkout_q: PreCheckoutQuery, bot: Bot):
 async def successful_payment(message: Message, session: AsyncSession):
     payment_info = message.successful_payment
 
-    user = await get_user_data(session, message.from_user.id)
-    new_orders_amount = user.orders_amount + 1
+    product_id = int(payment_info.invoice_payload.split("#")[1])
 
-    statement = (
-        update(User).
-        where(User.user_id == message.from_user.id).
-        values(orders_amount=new_orders_amount)
-    )
-
-    await session.execute(statement)
+    await session.merge(Operation(product_id=product_id, user_id=message.from_user.id))
     await session.commit()
 
     await message.answer_photo(
