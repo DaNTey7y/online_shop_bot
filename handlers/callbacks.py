@@ -59,8 +59,7 @@ async def product_page(callback: CallbackQuery, session: AsyncSession, bot: Bot)
     if config.payments_token.get_secret_value().split(":")[1] == "TEST":
         await bot.send_message(callback.message.chat.id, "Тестовый платеж")
 
-        photo_url = "https://sun9-70.userapi.com/impg/ulhYriziLEYzPVpfR0jiMdrfHIOTVlGWQG0QHg/" \
-                    "CE8MjEEZKnw.jpg?size=798x677&quality=96&sign=2873e7b6433866b7ea6236cc15013058&type=album"
+        photo_url = "https://github.com/DaNTey7y/online_shop_bot/blob/master/static/images/figs.png?raw=true"
         price = LabeledPrice(label=product.name, amount=product.cost*100)
 
         await bot.send_invoice(
