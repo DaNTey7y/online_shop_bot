@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import User, Section, Product
+from db import User, Section, Product, Operation
 
 
 async def get_user_data(session: AsyncSession, required_id: int):
@@ -31,3 +31,10 @@ async def get_product(session: AsyncSession, product_id: int):
         select(Product).where(Product.product_id == product_id)
     )
     return result.scalars().one()
+
+
+async def get_user_history(sesson: AsyncSession, user_id: int):
+    result = await sesson.execute(
+        select(Operation).where(Operation.user_id == user_id)
+    )
+    return result.scalars().all()
