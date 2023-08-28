@@ -9,8 +9,6 @@ class User(Base):
 
     user_id = Column(BigInteger, unique=True, nullable=False, primary_key=True, autoincrement=False)
 
-    orders_amount = Column(Integer, default=0)
-
     reg_date = Column(DATE, default=datetime.today().date())
 
     def __str__(self):
@@ -45,3 +43,15 @@ class Product(Base):
 
     def __str__(self):
         return f"<Product:_section#{self.section_id};_id#{self.product_id}>"
+
+
+class Operation(Base):
+    __tablename__ = "operations"
+
+    operation_id = Column(Integer, unique=True, primary_key=True)
+
+    product_id = Column(Integer)
+
+    user_id = Column(Integer)
+
+    purchase_day = Column(DATE, default=datetime.today().date())
