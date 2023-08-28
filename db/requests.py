@@ -33,8 +33,8 @@ async def get_product(session: AsyncSession, product_id: int):
     return result.scalars().one()
 
 
-async def get_user_history(sesson: AsyncSession, user_id: int):
-    result = await sesson.execute(
+async def get_user_history(session: AsyncSession, user_id: int):
+    result = await session.execute(
         select(Operation).where(Operation.user_id == user_id)
     )
     return result.scalars().all()
