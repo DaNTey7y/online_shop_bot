@@ -6,6 +6,7 @@ class BotSettings(BaseSettings):
     bot_token: SecretStr
     db_url: PostgresDsn
     payments_token: SecretStr
+    support_chat: int
 
     class Config:
         env_file = ".env"
