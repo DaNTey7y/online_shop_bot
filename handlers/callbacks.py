@@ -1,8 +1,11 @@
 from aiogram import Router, Bot, F
 from aiogram.types import CallbackQuery, LabeledPrice
+from aiogram.filters import StateFilter
+from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import *
+from states import Support
 
 from config_reader import config
 from keyboards.shop_keyboards import *
@@ -13,6 +16,12 @@ router = Router()
 router.callback_query.filter(F.message.chat.type == "private")
 
 
+@router.callback_query(StateFilter(Support.waiting_for_question), F.data == "menu")
+async def back_from_support(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await back_to_menu(callback=callback)
+
+
 @router.callback_query(F.data == "menu")
 async def back_to_menu(callback: CallbackQuery):
     await callback.message.edit_media(media=OBLOJKA_IMAGE, reply_markup=main_menu_ikb())
@@ -20,7 +29,7 @@ async def back_to_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data.in_({"shop", "profile", "faq",
                                   "guarantees", "reviews", "support"}))
-async def menu_transition(callback: CallbackQuery, session: AsyncSession):
+async def menu_transition(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
     if callback.data == "shop":
         sections = await get_sections(session)
         await callback.message.edit_media(media=SHOP_IMAGE, reply_markup=make_shop_ikb(sections))
@@ -37,6 +46,9 @@ async def menu_transition(callback: CallbackQuery, session: AsyncSession):
         await callback.message.edit_media(media=FAQ_IMAGE, reply_markup=back_in_menu())
     elif callback.data == "reviews":
         await callback.message.edit_media(media=REVIEWS_DATA, reply_markup=back_in_menu())
+    elif callback.data == "support":
+        await state.set_state(Support.waiting_for_question)
+        await callback.message.edit_media(media=SUPPORT_IMAGE, reply_markup=back_in_menu())
 
 
 @router.callback_query(F.data.startswith("shop_section"))
@@ -82,3 +94,17 @@ async def product_page(callback: CallbackQuery, session: AsyncSession, bot: Bot)
             caption=info,
             reply_markup=back_in_menu()
         )
+
+
+@router.callback_query(F.data == "history")
+async def show_history(callback: CallbackQuery, session: AsyncSession):
+    orders_info = await get_user_history(session, callback.from_user.id)
+    rows = []
+
+    for i, order in enumerate(orders_info, 1):
+        product_info = await get_product(session, order.product_id)
+        row = f"{i}) {product_info.name}, стоимость: {product_info.cost}р, дата: {order.purchase_day}"
+        rows.append(row)
+
+    await callback.message.edit_media(media=show_orders_history(rows),
+                                      reply_markup=orders_history_ikb())
