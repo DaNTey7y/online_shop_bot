@@ -49,3 +49,11 @@ def get_profile_ikb():
     builder.add(BACK_IN_MENU_BTN)
     builder.adjust(1)
     return builder.as_markup()
+
+
+def orders_history_ikb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Главное меню", callback_data="menu")
+    builder.button(text="Назад", callback_data="profile")
+    builder.adjust(1)
+    return builder.as_markup()
