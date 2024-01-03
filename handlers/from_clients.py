@@ -1,9 +1,14 @@
 from aiogram import Router, Bot, F
 from aiogram.types import Message, PreCheckoutQuery, ContentType
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, StateFilter
+from aiogram.fsm.context import FSMContext
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import User, Operation
+from states import Support
+
+from config_reader import config
 
 from keyboards.shop_keyboards import main_menu_ikb
 from content import *
@@ -33,6 +38,18 @@ async def successful_payment(message: Message, session: AsyncSession):
                 f"{payment_info.currency} прошел успешно!\n\n"
                 f"Но товар мы вам не дадим..."
     )
+
+
+@router.message(StateFilter(Support.waiting_for_question))
+async def got_an_appeal(message: Message, bot: Bot, state: FSMContext):
+    await state.clear()
+    try:
+        await bot.send_message(chat_id=config.support_chat, text=f"Для вас новое обращение")
+        await message.forward(config.support_chat)
+        await message.reply("Ваше обращение передано в чат поддержки. Ждите ответа.\n\n"
+                            "Можете продолжить пользоваться ботом.")
+    except Exception:
+        await message.answer("К сожалению обратиться за помощью сейчас нельзя")
 
 
 @router.message(CommandStart())
