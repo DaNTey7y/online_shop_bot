@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from config_reader import config
 from middlewares import DbSessionMiddleware
-from handlers import from_clients, callbacks
+from handlers import from_clients, callbacks, from_mods
 from db import Base
 
 
@@ -35,6 +35,7 @@ async def main():
 
     # Подключение роутеров
     dp.include_router(from_clients.router)
+    dp.include_router(from_mods.router)
     dp.include_router(callbacks.router)
 
     await dp.start_polling(bot)
