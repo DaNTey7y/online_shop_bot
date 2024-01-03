@@ -55,3 +55,7 @@ class Operation(Base):
     user_id = Column(Integer)
 
     purchase_day = Column(DATE, default=datetime.today().date())
+
+    def __str__(self):
+        return f"<Operation:_buy_product#{self.product_id};" \
+               f"_by_user#{self.user_id};_at#{self.purchase_day}>"

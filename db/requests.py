@@ -35,6 +35,6 @@ async def get_product(session: AsyncSession, product_id: int):
 
 async def get_user_history(session: AsyncSession, user_id: int):
     result = await session.execute(
-        select(Operation).where(Operation.user_id == user_id)
+        select(Operation).where(Operation.user_id == user_id).order_by(Operation.purchase_day)
     )
     return result.scalars().all()
